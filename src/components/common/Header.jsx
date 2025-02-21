@@ -5,17 +5,17 @@ const Header = ({ darkMode, setDarkMode }) => {
     <header className="flex justify-between items-center p-4 shadow-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
       
       {/* Left Section: Dashboard Title */}
-      <h1 className="text-xl font-semibold">Electronics Dashboard</h1>
+      <h1 className="text-xl font-semibold">FI Monitoring Dashboard</h1>
 
       {/* Middle Section: Search Bar */}
-      <div className="relative w-1/3">
+      {/* <div className="relative w-1/3">
         <input
           type="text"
           placeholder="Search..."
           className="w-full p-2 pl-10 rounded-lg bg-gray-100 dark:bg-gray-800 focus:outline-none"
         />
         <Search className="absolute left-3 top-2 text-gray-500 dark:text-gray-400 w-5 h-5" />
-      </div>
+      </div> */}
 
       {/* Right Section: Icons & Profile */}
       <div className="flex items-center space-x-4">

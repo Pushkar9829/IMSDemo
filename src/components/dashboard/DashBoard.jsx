@@ -4,132 +4,190 @@ import "react-calendar/dist/Calendar.css";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { motion } from "framer-motion";
-import { AiOutlineUser, AiOutlineShoppingCart, AiOutlineDollarCircle } from "react-icons/ai";
-import { FaNewspaper } from "react-icons/fa";
+import { FiSearch, FiX } from "react-icons/fi";
 
 const stats = [
-  { id: 1, title: "Partially Active Sites", value: "1,294", icon: "🟡", bgColor: "bg-yellow-400" },
-  { id: 2, title: "Active Sites", value: "345", icon: "✅", bgColor: "bg-green-500" },
-  { id: 3, title: "Not Active Sites", value: "1,303", icon: "❌", bgColor: "bg-red-400" },
-  { id: 4, title: "Pending Sites", value: "576", icon: "⏳", bgColor: "bg-blue-500" },
+  { id: 1, title: "Total Sites", value: "294", icon: "", bgColor: "from-blue-500 to-blue-600" },
+  { id: 2, title: "Active Sites", value: "345", icon: "", bgColor: "from-green-500 to-green-600" },
+  { id: 3, title: "Disconnected", value: "303", icon: "", bgColor: "from-red-500 to-red-600" },
+  { id: 4, title: "Incidents", value: "576", icon: "", bgColor: "from-amber-500 to-amber-600" },
 ];
 
-const deviceReadings = [
-  { id: 1, name: "Temperature Sensor", value: "24°C", status: "Normal" },
-  { id: 2, name: "Voltage Monitor", value: "12V", status: "Stable" },
-  { id: 3, name: "Current Sensor", value: "3A", status: "Warning" },
-];
-
-// Locations in India with status categories
 const locations = [
-  { id: 1, lat: 28.7041, lng: 77.1025, name: "Delhi", status: "Active" },
-  { id: 2, lat: 19.076, lng: 72.8777, name: "Mumbai", status: "Partially Active" },
-  { id: 3, lat: 12.9716, lng: 77.5946, name: "Bangalore", status: "Pending" },
-  { id: 4, lat: 13.0827, lng: 80.2707, name: "Chennai", status: "Not Active" },
-  { id: 5, lat: 22.5726, lng: 88.3639, name: "Kolkata", status: "Active" },
+  { id: 1, siteId: "DEL-001", lat: 28.7041, lng: 77.1025, name: "Delhi", status: "Active" },
+  { id: 2, siteId: "MUM-002", lat: 19.076, lng: 72.8777, name: "Mumbai", status: "Partially Active" },
+  { id: 3, siteId: "BAN-003", lat: 12.9716, lng: 77.5946, name: "Bangalore", status: "Pending" },
+  { id: 4, siteId: "CHE-004", lat: 13.0827, lng: 80.2707, name: "Chennai", status: "Not Active" },
+  { id: 5, siteId: "KOL-005", lat: 22.5726, lng: 88.3639, name: "Kolkata", status: "Active" },
 ];
 
-// Assigning colors based on site status
 const getStatusColor = (status) => {
   switch (status) {
-    case "Active":
-      return "blue";
-    case "Partially Active":
-      return "yellow";
-    case "Pending":
-      return "green";
-    case "Not Active":
-      return "red";
-    default:
-      return "gray";
+    case "Active": return "#3B82F6";
+    case "Partially Active": return "#F59E0B";
+    case "Pending": return "#10B981";
+    case "Not Active": return "#EF4444";
+    default: return "#6B7280";
   }
 };
 
 const Dashboard = ({ darkMode }) => {
+  const [selectedState, setSelectedState] = useState(null);
   const [date, setDate] = useState(new Date());
-  const themeClass = darkMode ? "bg-gray-900 text-white" : "bg-white text-black";
-  const cardClass = darkMode ? "bg-gray-800" : "bg-gray-100";
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  const themeClass = darkMode 
+    ? "bg-gray-900 text-gray-100" 
+    : "bg-gray-50 text-gray-900";
+  const cardClass = darkMode 
+    ? "bg-gray-800 border-gray-700" 
+    : "bg-white border-gray-200";
+
+  const handleSearch = () => {
+    const result = locations.find(loc => 
+      loc.siteId.toLowerCase() === searchQuery.toLowerCase() || 
+      loc.name.toLowerCase() === searchQuery.toLowerCase()
+    );
+    setSelectedState(result || null);
+  };
 
   return (
-    <div className={`p-6 ${themeClass}`}>
-      
-      {/* Top Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+    <div className={`p-6 min-h-screen ${themeClass}`}>
+      {/* Search Bar */}
+      <div className="mb-8 max-w-2xl mx-auto">
+        <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+          <div className="relative">
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by Site ID or Location..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              className={`w-full pl-12 pr-4 py-3 rounded-xl border ${
+                darkMode 
+                  ? 'bg-gray-800 border-gray-700 focus:border-blue-500' 
+                  : 'bg-white border-gray-200 focus:border-blue-500'
+              } focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all`}
+            />
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         {stats.map((stat) => (
-          <motion.div 
-            key={stat.id} 
-            className={`p-6 rounded-lg shadow-lg flex items-center justify-between text-white ${stat.bgColor}`}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
+          <motion.div
+            key={stat.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className={`bg-gradient-to-br ${stat.bgColor} text-white p-5 rounded-2xl shadow-lg`}
           >
-            <div className="text-4xl">{stat.icon}</div>
-            <div className="text-right">
-              <h3 className="text-lg">{stat.title}</h3>
-              <p className="text-2xl font-semibold">{stat.value}</p>
+            <div className="flex-col items-center justify-between">
+              <div className="space-y-2">
+                <span className="text-2xl">{stat.icon}</span>
+                <h3 className="text-lg font-medium">{stat.title}</h3>
+              </div>
+              <p className="text-3xl font-bold">{stat.value}</p>
             </div>
+            
           </motion.div>
         ))}
       </div>
 
-      {/* Calendar */}
-    
-
-      {/* Full-width Animated Map */}
-      <motion.div 
-        className={`p-4 shadow-lg rounded-xl ${cardClass} mb-6`}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
+      {/* Map Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`mb-8 p-5 rounded-2xl border ${cardClass} shadow-sm transition-colors`}
       >
-        <h2 className="text-lg font-semibold mb-4">Live Map</h2>
-        <MapContainer center={[22.5726, 88.3639]} zoom={5} className="h-96 w-full rounded-lg">
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {locations.map((loc) => (
-            <CircleMarker
-              key={loc.id}
-              center={[loc.lat, loc.lng]}
-              radius={10}
-              fillOpacity={0.8}
-              color={getStatusColor(loc.status)}
-            >
-              <Popup>{`${loc.name} - ${loc.status}`}</Popup>
-            </CircleMarker>
-          ))}
-        </MapContainer>
-      </motion.div>
-
-      {/* Full-width Device Readings */}
-      <motion.div 
-        className={`p-4 shadow-lg rounded-xl ${cardClass}`}
-        initial={{ opacity: 0, x: 10 }}
-        animate={{ opacity: 1, x: 0 }}
-      >
-        <h2 className="text-lg font-semibold mb-4">Device Readings</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {deviceReadings.map((device) => (
-            <motion.div 
-              key={device.id} 
-              className={`p-3 rounded-lg shadow ${cardClass} flex flex-col items-center`}
-              whileHover={{ scale: 1.05 }}
-            >
-              <h3 className="text-sm font-medium">{device.name}</h3>
-              <p className="text-lg font-bold">{device.value}</p>
-              <p className={`text-sm ${device.status === "Warning" ? "text-red-500" : "text-green-500"}`}>
-                {device.status}
-              </p>
-            </motion.div>
-          ))}
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl font-semibold">Site Locations</h2>
+          <span className="text-sm text-gray-500">Real-time monitoring</span>
+        </div>
+        <div className="h-96 rounded-xl overflow-hidden border">
+          <MapContainer center={[22.5726, 88.3639]} zoom={5} className="h-full w-full">
+            <TileLayer
+              url={`https://{s}.basemaps.cartocdn.com/${
+                darkMode ? 'dark_all' : 'rastertiles/voyager'
+              }/{z}/{x}/{y}{r}.png`}
+            />
+            {locations.map((loc) => (
+              <CircleMarker
+                key={loc.id}
+                center={[loc.lat, loc.lng]}
+                radius={12}
+                fillOpacity={0.8}
+                color={getStatusColor(loc.status)}
+                eventHandlers={{ click: () => setSelectedState(loc) }}
+              >
+                <Popup className="text-sm font-medium">
+                  {loc.name} <span className="text-blue-500">{loc.siteId}</span>
+                </Popup>
+              </CircleMarker>
+            ))}
+          </MapContainer>
         </div>
       </motion.div>
-      <motion.div 
-        className={`p-4 shadow-lg rounded-xl ${cardClass} mb-6`}
-        initial={{ opacity: 0, y: -10 }}
+
+      {/* Selected Location Details */}
+      {selectedState && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`mb-8 p-5 rounded-2xl border ${cardClass} shadow-sm`}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">
+              {selectedState.name} <span className="text-blue-500">({selectedState.siteId})</span>
+            </h2>
+            <button
+              onClick={() => setSelectedState(null)}
+              className="p-2 hover:bg-gray-700/10 rounded-lg transition-colors"
+            >
+              <FiX className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl bg-blue-500/10 text-blue-500">
+              <p className="text-sm text-gray-500">Status</p>
+              <p className="font-medium">{selectedState.status}</p>
+            </div>
+            <div className="p-4 rounded-xl bg-green-500/10 text-green-500">
+              <p className="text-sm text-gray-500">Active Sites</p>
+              <p className="font-medium">200</p>
+            </div>
+            <div className="p-4 rounded-xl bg-red-500/10 text-red-500">
+              <p className="text-sm text-gray-500">Disconnected</p>
+              <p className="font-medium">150</p>
+            </div>
+            <div className="p-4 rounded-xl bg-amber-500/10 text-amber-500">
+              <p className="text-sm text-gray-500">Incidents</p>
+              <p className="font-medium">50</p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Calendar Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        className={`p-5 rounded-2xl border ${cardClass} shadow-sm`}
       >
-        <h2 className="text-lg font-semibold mb-4">Calendar</h2>
-        <Calendar 
-          onChange={setDate} 
-          value={date} 
-          className={`rounded-lg ${cardClass} ${darkMode ? "!bg-gray-800 !text-white" : ""}`} 
+        <h2 className="text-xl font-semibold mb-5">Maintenance Schedule</h2>
+        <Calendar
+          onChange={setDate}
+          value={date}
+          className={`react-calendar rounded-lg !w-full !border-0 ${
+            darkMode ? '!bg-gray-800 !text-white' : '!bg-white'
+          }`}
+          tileClassName={({ date: tileDate }) =>
+            tileDate.toDateString() === date.toDateString()
+              ? '!bg-blue-500 !text-white'
+              : ''
+          }
         />
       </motion.div>
     </div>
