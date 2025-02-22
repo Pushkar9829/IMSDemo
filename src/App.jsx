@@ -1,10 +1,11 @@
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/common/Header";
 import Sidebar from "./components/common/SideBar";
 import Dashboard from "./components/dashboard/DashBoard";
-// import DemoPage from "./components/demo/DemoPage"; // Import the demo page
-import { useState, useEffect } from "react";
-import DetailsPage from "./components/common/DetailsPage";
+import { useState, useEffect, Suspense } from "react";
+
+const DetailsPage = React.lazy(() => import("./components/common/DetailsPage")); // Lazy load DetailsPage
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "true");
@@ -35,7 +36,16 @@ const App = () => {
           <div className="flex-grow overflow-y-auto p-10">
             <Routes>
               <Route path="/" element={<Dashboard darkMode={darkMode} />} />
-              <Route path="/detailsPage" element={<DetailsPage />} />
+              
+              {/* Lazy Load DetailsPage */}
+              <Route
+                path="/detailsPage"
+                element={
+                  <Suspense fallback={<div className="text-center">Loading...</div>}>
+                    <DetailsPage darkMode={darkMode} />
+                  </Suspense>
+                }
+              />
             </Routes>
           </div>
         </div>

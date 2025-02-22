@@ -5,11 +5,8 @@ import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { motion } from "framer-motion";
 import { FiSearch, FiX ,FiInfo} from "react-icons/fi";
-import { Chart as ChartJS, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale } from "chart.js";
-import { Line } from "react-chartjs-2";
 import { useNavigate } from "react-router-dom";
 
-ChartJS.register(LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale);
 
 const stats = [
   { id: 1, title: "Total Sites", value: "294", icon: "", bgColor: "from-blue-500 to-blue-600" },
