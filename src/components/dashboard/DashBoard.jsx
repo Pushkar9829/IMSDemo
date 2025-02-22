@@ -4,7 +4,12 @@ import "react-calendar/dist/Calendar.css";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { motion } from "framer-motion";
-import { FiSearch, FiX } from "react-icons/fi";
+import { FiSearch, FiX ,FiInfo} from "react-icons/fi";
+import { Chart as ChartJS, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale } from "chart.js";
+import { Line } from "react-chartjs-2";
+import { useNavigate } from "react-router-dom";
+
+ChartJS.register(LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale);
 
 const stats = [
   { id: 1, title: "Total Sites", value: "294", icon: "", bgColor: "from-blue-500 to-blue-600" },
@@ -21,6 +26,23 @@ const locations = [
   { id: 5, siteId: "KOL-005", lat: 22.5726, lng: 88.3639, name: "Kolkata", status: "Active" },
 ];
 
+const chartData = {
+  labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+  datasets: [
+    {
+      label: "Voltage Data",
+      data: [3.1, 3.5, 3.7, 4.0, 4.2, 4.5],
+      borderColor: "#3B82F6",
+      fill: false,
+    },
+    {
+      label: "Temperature Data",
+      data: [30, 32, 31, 29, 35, 36],
+      borderColor: "#F59E0B",
+      fill: false,
+    },
+  ],
+};
 const getStatusColor = (status) => {
   switch (status) {
     case "Active": return "#3B82F6";
@@ -35,7 +57,8 @@ const Dashboard = ({ darkMode }) => {
   const [selectedState, setSelectedState] = useState(null);
   const [date, setDate] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState("");
-  
+  const navigate = useNavigate(); // Hook for navigation
+
   const themeClass = darkMode 
     ? "bg-gray-900 text-gray-100" 
     : "bg-gray-50 text-gray-900";
@@ -50,7 +73,12 @@ const Dashboard = ({ darkMode }) => {
     );
     setSelectedState(result || null);
   };
+  const handleInfoClick = () => {
+    navigate("/detailsPage"); // Navigate to the demo page
+  };
+  
 
+  
   return (
     <div className={`p-6 min-h-screen ${themeClass}`}>
       {/* Search Bar */}
@@ -123,6 +151,12 @@ const Dashboard = ({ darkMode }) => {
               >
                 <Popup className="text-sm font-medium">
                   {loc.name} <span className="text-blue-500">{loc.siteId}</span>
+                   <button
+     onClick={handleInfoClick} // Replace with your info function
+      className="p-2 hover:bg-gray-700/10 rounded-lg transition-colors"
+    >
+      <FiInfo className="w-5 h-5" />
+    </button>
                 </Popup>
               </CircleMarker>
             ))}
@@ -137,17 +171,26 @@ const Dashboard = ({ darkMode }) => {
           animate={{ opacity: 1, y: 0 }}
           className={`mb-8 p-5 rounded-2xl border ${cardClass} shadow-sm`}
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">
-              {selectedState.name} <span className="text-blue-500">({selectedState.siteId})</span>
-            </h2>
-            <button
-              onClick={() => setSelectedState(null)}
-              className="p-2 hover:bg-gray-700/10 rounded-lg transition-colors"
-            >
-              <FiX className="w-5 h-5" />
-            </button>
-          </div>
+         <div className="flex items-center justify-between mb-4">
+  <h2 className="text-xl font-semibold">
+    {selectedState.name} <span className="text-blue-500">({selectedState.siteId})</span>
+  </h2>
+  <div className="flex items-center gap-2">
+    <button
+     onClick={handleInfoClick} // Replace with your info function
+      className="p-2 hover:bg-gray-700/10 rounded-lg transition-colors"
+    >
+      <FiInfo className="w-5 h-5" />
+    </button>
+    <button
+      onClick={() => setSelectedState(null)}
+      className="p-2 hover:bg-gray-700/10 rounded-lg transition-colors"
+    >
+      <FiX className="w-5 h-5" />
+    </button>
+  </div>
+</div>
+
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="p-4 rounded-xl bg-blue-500/10 text-blue-500">
@@ -190,7 +233,9 @@ const Dashboard = ({ darkMode }) => {
           }
         />
       </motion.div>
+      
     </div>
+
   );
 };
 
