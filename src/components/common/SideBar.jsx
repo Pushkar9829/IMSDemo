@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
-import { Sun, Moon, Grid, PlusCircle, ShoppingCart, Users, FileText, MessageCircle, Mail, List, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
+import { X, Grid,AlignJustify , PlusCircle, ShoppingCart, Users, FileText, MessageCircle, Mail, List, ChevronDown, ChevronUp, Sun, Moon } from "lucide-react";
+
 const Sidebar = ({ darkMode, setDarkMode }) => {
   const [expanded, setExpanded] = useState(true);
   const [openSections, setOpenSections] = useState({});
 
   const toggleExpand = () => setExpanded(!expanded);
   const toggleSection = (section) => {
-    console.log("qqqqqqqqq")
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
@@ -14,13 +14,13 @@ const Sidebar = ({ darkMode, setDarkMode }) => {
     <div className={`h-screen transition-all ${darkMode ? "dark" : ""}`}>
       <div className="flex relative">
         {/* Sidebar */}
-        <div className={`h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4 shadow-md transition-all relative ${expanded ? "w-64" : "w-20"}`}>
+        <div className={`h-screen bg-orange-600/10 dark:bg-gray-900 text-gray-900 dark:text-white p-4 shadow-md transition-all relative ${expanded ? "w-64" : "w-20"}`}>
           <div className="flex justify-between items-center mb-6">
             <span className={`${expanded ? "block" : "hidden"} text-lg font-semibold`}>
-              Demo
+              IMS
             </span>
             <button onClick={toggleExpand} className="p-2">
-              <Grid className="w-6 h-6" />
+              {expanded ? <X className="w-6 h-6" /> : <Grid className="w-6 h-6" />}
             </button>
           </div>
 
@@ -32,7 +32,7 @@ const Sidebar = ({ darkMode, setDarkMode }) => {
             </button>
 
             {[
-               { label: "Overview", icon: Grid },
+               { label: "Overview", icon: AlignJustify  },
                { label: "Sensors", icon: PlusCircle },
                { label: "Voltage Monitor", icon: ShoppingCart },
                { label: "Temperature Sensors", icon: Users },

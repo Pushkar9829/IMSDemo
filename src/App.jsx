@@ -22,7 +22,7 @@ const App = () => {
   return (
     <Router>
       <Suspense fallback={<div className="text-center">Loading...</div>}>
-        <div className={`min-h-screen flex ${darkMode ? "dark bg-gray-800 text-white" : "bg-gray-100 text-black"}`}>
+        <div className={`min-h-screen flex ${darkMode ? "dark bg-gray-800 text-white" : "bg-white text-black"}`}>
           
           {/* Sidebar */}
           <Sidebar darkMode={darkMode} setDarkMode={setDarkMode} />

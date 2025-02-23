@@ -37,7 +37,7 @@ const DetailsPage = () => {
       </div>
 
       {/* Alarm Notification Bar */}
-      <motion.div className="mb-6 p-4 rounded-xl bg-red-500 text-white font-semibold shadow-lg" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <motion.div className="mb-6 p-4 rounded-xl bg-red-700/20 text-red font-semibold shadow-lg" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         ⚠️ Alert: High CPU usage detected!
       </motion.div>
 
