@@ -21,7 +21,20 @@ const locations = [
   { id: 4, siteId: "CHE-004", lat: 13.0827, lng: 80.2707, name: "Chennai", status: "Not Active" },
   { id: 5, siteId: "KOL-005", lat: 22.5726, lng: 88.3639, name: "Kolkata", status: "Active" },
 ];
-
+const stateDetails = {
+  "DEL-001": [
+    { id: 1, title: "Power Usage", value: "120 kW", bgColor: "bg-purple-500/10 text-purple-500" },
+    { id: 2, title: "Temperature", value: "30°C", bgColor: "bg-orange-500/10 text-orange-500" },
+    { id: 3, title: "Network Status", value: "Stable", bgColor: "bg-green-500/10 text-green-500" },
+    { id: 4, title: "Alerts", value: "2 Active", bgColor: "bg-red-500/10 text-red-500" },
+  ],
+  "MUM-002": [
+    { id: 1, title: "Power Usage", value: "135 kW", bgColor: "bg-purple-500/10 text-purple-500" },
+    { id: 2, title: "Temperature", value: "32°C", bgColor: "bg-orange-500/10 text-orange-500" },
+    { id: 3, title: "Network Status", value: "Unstable", bgColor: "bg-yellow-500/10 text-yellow-500" },
+    { id: 4, title: "Alerts", value: "5 Active", bgColor: "bg-red-500/10 text-red-500" },
+  ],
+};
 const getStatusColor = (status) => {
   switch (status) {
     case "Active": return "#3B82F6";
@@ -38,11 +51,14 @@ const Dashboard = ({ darkMode }) => {
   const navigate = useNavigate();
 
   const handleSearch = () => {
-    const result = locations.find(loc => 
-      loc.siteId.toLowerCase() === searchQuery.toLowerCase() || 
-      loc.name.toLowerCase() === searchQuery.toLowerCase()
+    const result = locations.find(
+      (loc) => loc.siteId.toLowerCase() === searchQuery.toLowerCase() || loc.name.toLowerCase() === searchQuery.toLowerCase()
     );
     setSelectedState(result || null);
+  };
+
+  const handleMarkerClick = (siteId) => {
+    setSelectedState(siteId);
   };
 
   const handleInfoClick = () => {
@@ -51,6 +67,7 @@ const Dashboard = ({ darkMode }) => {
 
   return (
     <div className={`p-6 min-h-screen ${darkMode ? "bg-gray-900 text-gray-100" : "bg-white text-gray-900"}`}>
+      
       {/* Search Bar */}
       <div className="mb-8 max-w-2xl mx-auto relative">
         <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -59,14 +76,14 @@ const Dashboard = ({ darkMode }) => {
           placeholder="Search by Site ID or Location..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-          className={`w-full pl-12 pr-4 py-3 rounded-2xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all`}
+          onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+          className={`w-full pl-12 pr-4 py-3 rounded-2xl border ${darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all`}
         />
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        {stats.map(stat => (
+        {stats.map((stat) => (
           <motion.div key={stat.id} className={`p-5 rounded-2xl shadow-lg ${stat.bgColor}`}>
             <h3 className="text-lg font-medium">{stat.title}</h3>
             <p className="text-3xl font-bold">{stat.value}</p>
@@ -79,9 +96,18 @@ const Dashboard = ({ darkMode }) => {
         <h2 className="text-xl font-semibold mb-5">Site Locations</h2>
         <div className="h-96 rounded-xl overflow-hidden border">
           <MapContainer center={[22.5726, 88.3639]} zoom={5} className="h-full w-full">
-            <TileLayer url={`https://{s}.basemaps.cartocdn.com/${darkMode ? 'dark_all' : 'rastertiles/voyager'}/{z}/{x}/{y}{r}.png`} />
-            {locations.map(loc => (
-              <CircleMarker key={loc.id} center={[loc.lat, loc.lng]} radius={12} fillOpacity={0.8} color={getStatusColor(loc.status)}>
+            <TileLayer url={`https://{s}.basemaps.cartocdn.com/${darkMode ? "dark_all" : "rastertiles/voyager"}/{z}/{x}/{y}{r}.png`} />
+            {locations.map((loc) => (
+              <CircleMarker
+                key={loc.id}
+                center={[loc.lat, loc.lng]}
+                radius={12}
+                fillOpacity={0.8}
+                color={getStatusColor(loc.status)}
+                eventHandlers={{
+                  click: () => handleMarkerClick(loc.siteId),
+                }}
+              >
                 <Popup>
                   {loc.name} <span className="text-blue-500">{loc.siteId}</span>
                   <button onClick={handleInfoClick} className="p-2 hover:bg-gray-700/10 rounded-lg transition-colors">
@@ -93,6 +119,22 @@ const Dashboard = ({ darkMode }) => {
           </MapContainer>
         </div>
       </motion.div>
+
+      {/* Additional State-wise Information */}
+      {selectedState && stateDetails[selectedState] && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8"
+        >
+          {stateDetails[selectedState].map((detail) => (
+            <motion.div key={detail.id} className={`p-5 rounded-2xl shadow-lg ${detail.bgColor}`}>
+              <h3 className="text-lg font-medium">{detail.title}</h3>
+              <p className="text-3xl font-bold">{detail.value}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
     </div>
   );
 };
