@@ -1,18 +1,9 @@
 import { useState } from "react";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { motion } from "framer-motion";
-import { FiSearch, FiX, FiInfo } from "react-icons/fi";
+import { FiSearch, FiInfo, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-
-const stats = [
-  { id: 1, title: "Total Sites", value: "294", bgColor: "bg-blue-500/10 text-blue-500" },
-  { id: 2, title: "Active Sites", value: "345", bgColor: "bg-green-500/10 text-green-500" },
-  { id: 3, title: "Disconnected", value: "303", bgColor: "bg-red-500/10 text-red-500" },
-  { id: 4, title: "Incidents", value: "576", bgColor: "bg-amber-500/10 text-amber-500" },
-];
 
 const locations = [
   { id: 1, siteId: "DEL-001", lat: 28.7041, lng: 77.1025, name: "Delhi", status: "Active" },
@@ -21,20 +12,13 @@ const locations = [
   { id: 4, siteId: "CHE-004", lat: 13.0827, lng: 80.2707, name: "Chennai", status: "Not Active" },
   { id: 5, siteId: "KOL-005", lat: 22.5726, lng: 88.3639, name: "Kolkata", status: "Active" },
 ];
-const stateDetails = {
-  "DEL-001": [
-    { id: 1, title: "Power Usage", value: "120 kW", bgColor: "bg-purple-500/10 text-purple-500" },
-    { id: 2, title: "Temperature", value: "30°C", bgColor: "bg-orange-500/10 text-orange-500" },
-    { id: 3, title: "Network Status", value: "Stable", bgColor: "bg-green-500/10 text-green-500" },
-    { id: 4, title: "Alerts", value: "2 Active", bgColor: "bg-red-500/10 text-red-500" },
-  ],
-  "MUM-002": [
-    { id: 1, title: "Power Usage", value: "135 kW", bgColor: "bg-purple-500/10 text-purple-500" },
-    { id: 2, title: "Temperature", value: "32°C", bgColor: "bg-orange-500/10 text-orange-500" },
-    { id: 3, title: "Network Status", value: "Unstable", bgColor: "bg-yellow-500/10 text-yellow-500" },
-    { id: 4, title: "Alerts", value: "5 Active", bgColor: "bg-red-500/10 text-red-500" },
-  ],
-};
+
+const stats = [
+  { id: 1, title: "Total Sites", value: "294", bgColor: "bg-blue-500/10 text-blue-500" },
+  { id: 2, title: "Active Sites", value: "345", bgColor: "bg-green-500/10 text-green-500" },
+  { id: 3, title: "Disconnected", value: "303", bgColor: "bg-red-500/10 text-red-500" },
+  { id: 4, title: "Incidents", value: "576", bgColor: "bg-amber-500/10 text-amber-500" },
+];
 const getStatusColor = (status) => {
   switch (status) {
     case "Active": return "#3B82F6";
@@ -46,24 +30,29 @@ const getStatusColor = (status) => {
 };
 
 const Dashboard = ({ darkMode }) => {
-  const [selectedState, setSelectedState] = useState(null);
+  const [selectedSiteId, setSelectedSiteId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+
+  const cardClass = darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200";
 
   const handleSearch = () => {
     const result = locations.find(
       (loc) => loc.siteId.toLowerCase() === searchQuery.toLowerCase() || loc.name.toLowerCase() === searchQuery.toLowerCase()
     );
-    setSelectedState(result || null);
+    setSelectedSiteId(result ? result.siteId : null);
   };
 
   const handleMarkerClick = (siteId) => {
-    setSelectedState(siteId);
+    setSelectedSiteId(siteId);
   };
 
   const handleInfoClick = () => {
     navigate("/detailsPage");
   };
+
+  // Find the selected site object
+  const selectedSite = locations.find((loc) => loc.siteId === selectedSiteId);
 
   return (
     <div className={`p-6 min-h-screen ${darkMode ? "bg-gray-900 text-gray-100" : "bg-white text-gray-900"}`}>
@@ -80,8 +69,6 @@ const Dashboard = ({ darkMode }) => {
           className={`w-full pl-12 pr-4 py-3 rounded-2xl border ${darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all`}
         />
       </div>
-
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         {stats.map((stat) => (
           <motion.div key={stat.id} className={`p-5 rounded-2xl shadow-lg ${stat.bgColor}`}>
@@ -90,7 +77,6 @@ const Dashboard = ({ darkMode }) => {
           </motion.div>
         ))}
       </div>
-
       {/* Map Section */}
       <motion.div className="mb-8 p-5 rounded-2xl border shadow-sm">
         <h2 className="text-xl font-semibold mb-5">Site Locations</h2>
@@ -104,9 +90,7 @@ const Dashboard = ({ darkMode }) => {
                 radius={12}
                 fillOpacity={0.8}
                 color={getStatusColor(loc.status)}
-                eventHandlers={{
-                  click: () => handleMarkerClick(loc.siteId),
-                }}
+                eventHandlers={{ click: () => handleMarkerClick(loc.siteId) }}
               >
                 <Popup>
                   {loc.name} <span className="text-blue-500">{loc.siteId}</span>
@@ -120,19 +104,50 @@ const Dashboard = ({ darkMode }) => {
         </div>
       </motion.div>
 
-      {/* Additional State-wise Information */}
-      {selectedState && stateDetails[selectedState] && (
+      {/* Selected Location Details (Only shows if a site is selected) */}
+      {selectedSite && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8"
+          className={`mb-8 p-5 rounded-2xl border ${cardClass} shadow-sm`}
         >
-          {stateDetails[selectedState].map((detail) => (
-            <motion.div key={detail.id} className={`p-5 rounded-2xl shadow-lg ${detail.bgColor}`}>
-              <h3 className="text-lg font-medium">{detail.title}</h3>
-              <p className="text-3xl font-bold">{detail.value}</p>
-            </motion.div>
-          ))}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col">
+            <h2 className="text-xl font-semibold">
+              {selectedSite.name} <span className="text-blue-500">({selectedSite.siteId})</span>
+              
+            </h2>
+            <button onClick={handleInfoClick} className="p-2 flex flex-row items-center  hover:bg-gray-700/10 rounded-lg transition-colors">
+                    <FiInfo className="w-5 h-5" />
+                    <p>Details View</p>
+                  </button>
+            </div>
+            <button
+              onClick={() => setSelectedSiteId(null)}
+              className="p-2 hover:bg-gray-700/10 rounded-lg transition-colors"
+            >
+              <FiX className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl bg-blue-500/10 text-blue-500">
+              <p className="text-sm text-gray-500">Status</p>
+              <p className="font-medium">{selectedSite.status}</p>
+            </div>
+            <div className="p-4 rounded-xl bg-green-500/10 text-green-500">
+              <p className="text-sm text-gray-500">Active Sites</p>
+              <p className="font-medium">200</p>
+            </div>
+            <div className="p-4 rounded-xl bg-red-500/10 text-red-500">
+              <p className="text-sm text-gray-500">Disconnected</p>
+              <p className="font-medium">150</p>
+            </div>
+            <div className="p-4 rounded-xl bg-amber-500/10 text-amber-500">
+              <p className="text-sm text-gray-500">Incidents</p>
+              <p className="font-medium">50</p>
+            </div>
+          </div>
         </motion.div>
       )}
     </div>
