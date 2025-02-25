@@ -119,7 +119,7 @@ const Dashboard = ({ darkMode }) => {
             </h2>
             <button onClick={handleInfoClick} className="p-2 flex flex-row items-center  hover:bg-gray-700/10 rounded-lg transition-colors">
                     <FiInfo className="w-5 h-5" />
-                    <p>Details View</p>
+                    <p>Detailed View</p>
                   </button>
             </div>
             <button
@@ -148,6 +148,49 @@ const Dashboard = ({ darkMode }) => {
               <p className="font-medium">50</p>
             </div>
           </div>
+          <div className="grid mt-5 grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 bg-gray-800/10 p-6 rounded-xl">
+  <div className="p-4 rounded-xl bg-blue-500/10 text-blue-400">
+    <p className="text-sm text-black">Temperature</p>
+    <p className="font-medium">33°C</p>
+  </div>
+  <div className="p-4 rounded-xl bg-green-500/10 text-green-400">
+    <p className="text-sm text-black">Voltage</p>
+    <p className="font-medium">240V</p>
+  </div>
+  <div className="p-4 rounded-xl bg-red-500/10 text-red-400">
+    <p className="text-sm text-black">Humidity</p>
+    <p className="font-medium">20%</p>
+  </div>
+  <div className="p-4 rounded-xl bg-amber-500/10 text-amber-400">
+    <p className="text-sm text-black">Time</p>
+    <p className="font-medium">50h</p>
+  </div>
+  <div className="p-4 rounded-xl bg-purple-500/10 text-purple-400">
+    <p className="text-sm text-black">Current</p>
+    <p className="font-medium">15A</p>
+  </div>
+  <div className="p-4 rounded-xl bg-cyan-500/10 text-cyan-400">
+    <p className="text-sm text-black">Power</p>
+    <p className="font-medium">3.6kW</p>
+  </div>
+  <div className="p-4 rounded-xl bg-indigo-500/10 text-indigo-400">
+    <p className="text-sm text-black">Resistance</p>
+    <p className="font-medium">5Ω</p>
+  </div>
+  <div className="p-4 rounded-xl bg-teal-500/10 text-teal-400">
+    <p className="text-sm text-black">Energy</p>
+    <p className="font-medium">12kWh</p>
+  </div>
+  <div className="p-4 rounded-xl bg-yellow-500/10 text-yellow-400">
+    <p className="text-sm text-black">Frequency</p>
+    <p className="font-medium">50Hz</p>
+  </div>
+  <div className="p-4 rounded-xl bg-rose-500/10 text-rose-400">
+    <p className="text-sm text-black">Load</p>
+    <p className="font-medium">75%</p>
+  </div>
+</div>
+
         </motion.div>
       )}
     </div>
